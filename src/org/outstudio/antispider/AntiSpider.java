@@ -41,10 +41,8 @@ public class AntiSpider {
 	 * 
 	 * @param key
 	 *            区分用户的唯一标识
-	 * @throws ExecutionException
-	 *             处理爬虫时抛出的Exception
 	 */
-	public void log(String key) throws ExecutionException {
+	public void log(String key) {
 		List<Integer> theList = visitTimeListMap.putIfAbsent(key, new ArrayList<>());
 		Integer time = (int) (System.currentTimeMillis() / 1000);
 		synchronized (theList) {
@@ -57,10 +55,8 @@ public class AntiSpider {
 	 * 
 	 * @param key
 	 *            区分用户的唯一标识
-	 * @throws ExecutionException
-	 *             处理爬虫时抛出的Exception
 	 */
-	private void anti(String key) throws ExecutionException {
+	private void anti(String key) {
 		for (Entry<Integer, Integer> entry : spaceAndTimesMap.entrySet()) {
 			Integer space = entry.getKey();
 			Integer times = entry.getValue();
@@ -80,11 +76,25 @@ public class AntiSpider {
 						f.cancel(true);
 						e.printStackTrace();
 					} catch (ExecutionException e) {
-						throw e;
+						launderThrowable(e);
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * 重新包装异常
+	 * 
+	 * @param t
+	 */
+	private static void launderThrowable(Throwable t) {
+		if (t instanceof RuntimeException)
+			throw (RuntimeException) t;
+		else if (t instanceof Error)
+			throw (Error) t;
+		else
+			throw new RuntimeException(t);
 	}
 
 	/**
