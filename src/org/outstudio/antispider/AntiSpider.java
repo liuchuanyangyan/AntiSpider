@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * 
@@ -65,19 +63,11 @@ public class AntiSpider {
 				Integer pre = theList.get(theList.size() - times - 1);
 				Integer now = theList.get(theList.size() - 1);
 				if (pre - now <= space) {
-					Future<?> f = executor.submit(new Runnable() {
+					executor.execute(new Runnable() {
 						public void run() {
 							antiHandler.doHandle(key);
 						}
 					});
-					try {
-						f.get();
-					} catch (InterruptedException e) {
-						f.cancel(true);
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						launderThrowable(e);
-					}
 				}
 			}
 		}
