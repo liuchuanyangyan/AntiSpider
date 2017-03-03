@@ -41,7 +41,14 @@ public class AntiSpider {
 	 *            区分用户的唯一标识
 	 */
 	public void log(String key) {
-		List<Integer> theList = visitTimeListMap.putIfAbsent(key, new ArrayList<>());
+		List<Integer> theList = visitTimeListMap.get(key);
+		if (theList == null) {
+			List<Integer> newList = new ArrayList<>();
+			theList = visitTimeListMap.putIfAbsent(key, newList);
+			if (theList == null) {
+				theList = newList;
+			}
+		}
 		Integer time = (int) (System.currentTimeMillis() / 1000);
 		synchronized (theList) {
 			theList.add(time);
